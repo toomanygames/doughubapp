@@ -67,7 +67,9 @@ class _SignInPageState extends State<SignInPage> {
         if (message.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 12), child: Text(message, style: const TextStyle(color: Color(0xFFFFC18B)))),
         const SizedBox(height: 18), FilledButton(onPressed: busy ? null : submit, style: FilledButton.styleFrom(backgroundColor: purple, padding: const EdgeInsets.all(15)), child: Text(busy ? 'Please wait…' : signup ? 'Create account' : 'Sign in')),
         TextButton(onPressed: busy ? null : () => setState(() { signup = !signup; message = ''; }), child: Text(signup ? 'Already have an account? Sign in' : 'New here? Create an account'))
-      ]))))));
+      ])))))));
+  }
+}
 
 class ToolInfo {
   final String title, description, category;
