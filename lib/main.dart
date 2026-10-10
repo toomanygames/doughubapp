@@ -68,7 +68,6 @@ class _SignInPageState extends State<SignInPage> {
         const SizedBox(height: 18), FilledButton(onPressed: busy ? null : submit, style: FilledButton.styleFrom(backgroundColor: purple, padding: const EdgeInsets.all(15)), child: Text(busy ? 'Please wait…' : signup ? 'Create account' : 'Sign in')),
         TextButton(onPressed: busy ? null : () => setState(() { signup = !signup; message = ''; }), child: Text(signup ? 'Already have an account? Sign in' : 'New here? Create an account'))
       ])))))));
-  }
 }
 
 class ToolInfo {
@@ -162,7 +161,7 @@ class _HomeShellState extends State<HomeShell> {
           FilledButton.icon(onPressed: () => setState(() => selected = 1), icon: const Icon(Icons.grid_view), label: const Text('Explore tools'), style: FilledButton.styleFrom(backgroundColor: purple)),
           OutlinedButton.icon(onPressed: () => setState(() => selected = 2), icon: const Icon(Icons.auto_awesome), label: const Text('Study AI'))
         ])
-      ]),
+      ])),
       const SizedBox(height: 24), const Heading('Quick access', 'Useful tools ready to open.'), const SizedBox(height: 12),
       toolGrid(tools.take(4).toList(), wide), const SizedBox(height: 20),
       const FeatureCard(icon: Icons.tablet_mac_rounded, title: 'iPad-friendly', text: 'Adaptive card grids and touch-sized controls.'), const SizedBox(height: 10),
