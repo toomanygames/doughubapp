@@ -47,7 +47,8 @@ class _SignInPageState extends State<SignInPage> {
       if (signup) {
         final result = await db.auth.signUp(email: email.text.trim(), password: password.text,
           data: {'display_name': displayName.text.trim().isEmpty ? email.text.trim().split('@').first : displayName.text.trim()});
-        if (result.session == null && mounted) setState(() => message = 'Account created. Check your email if confirmation is required, then sign in.');
+        if (result.session == null && mounted) setState(() => message = 'Supabase is still requiring email confirmation. Open Supabase Dashboard → Authentication → Sign In / Providers → Email and turn OFF “Confirm email” for instant sign-up.');
+        else if (mounted) setState(() => message = 'Account created and signed in.');
       } else {
         await db.auth.signInWithPassword(email: email.text.trim(), password: password.text);
       }
@@ -82,6 +83,12 @@ const tools = [
   ToolInfo('JSON Formatter', 'Validate and format JSON', Icons.data_object_rounded, 'Developer'),
   ToolInfo('Password Generator', 'Generate a password locally', Icons.key_rounded, 'Security'),
   ToolInfo('Color Tools', 'Preview and copy a hex color', Icons.palette_rounded, 'Design'),
+  ToolInfo('Word Counter', 'Count words, characters, and lines', Icons.format_list_numbered_rounded, 'Writing'),
+  ToolInfo('URL Encoder', 'Encode or decode URL text', Icons.link_rounded, 'Developer'),
+  ToolInfo('Base64 Tools', 'Encode or decode Base64 text', Icons.swap_vert_rounded, 'Developer'),
+  ToolInfo('Line Sorter', 'Sort lines alphabetically', Icons.sort_by_alpha_rounded, 'Writing'),
+  ToolInfo('Duplicate Remover', 'Remove repeated lines', Icons.filter_list_rounded, 'Writing'),
+  ToolInfo('Lorem Ipsum', 'Generate placeholder text', Icons.notes_rounded, 'Writing'),
 ];
 const navTitles = ['Home', 'Tools', 'Study AI', 'Chat', 'Favorites', 'Recent', 'Account', 'Settings'];
 const navIcons = [Icons.home_rounded, Icons.grid_view_rounded, Icons.auto_awesome_rounded, Icons.forum_rounded, Icons.star_rounded, Icons.history_rounded, Icons.person_rounded, Icons.settings_rounded];
@@ -95,9 +102,9 @@ class _HomeShellState extends State<HomeShell> {
   String search = '';
   final favorites = <String>{};
   final recent = <String>[];
+  ToolInfo? activeTool;
   void openTool(ToolInfo tool) {
-    setState(() { selected = 1; recent.remove(tool.title); recent.insert(0, tool.title); if (recent.length > 12) recent.removeLast(); });
-    Navigator.push(context, MaterialPageRoute(builder: (_) => ToolPage(tool: tool)));
+    setState(() { selected = 1; activeTool = tool; recent.remove(tool.title); recent.insert(0, tool.title); if (recent.length > 12) recent.removeLast(); });
   }
   @override Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= 850;
@@ -132,10 +139,16 @@ class _HomeShellState extends State<HomeShell> {
   }
   Widget page(bool wide) {
     if (selected == 1) {
+      if (activeTool != null) {
+        return ListView(padding: const EdgeInsets.all(20), children: [
+          Align(alignment: Alignment.centerLeft, child: TextButton.icon(onPressed: () => setState(() => activeTool = null), icon: const Icon(Icons.arrow_back_rounded), label: const Text('All tools'))),
+          SizedBox(height: 650, child: ToolPage(key: ValueKey(activeTool!.title), tool: activeTool!)),
+        ]);
+      }
       final q = search.toLowerCase().trim();
       final found = tools.where((t) => (t.title + t.description + t.category).toLowerCase().contains(q)).toList();
       return ListView(padding: const EdgeInsets.all(20), children: [
-        const Heading('Tools that work', 'Tap any tool to open it.'), const SizedBox(height: 16),
+        const Heading('Tools that work', 'Open any tool here — no separate page or navigation away.'), const SizedBox(height: 16),
         if (!wide) TextField(onChanged: (v) => setState(() => search = v), decoration: const InputDecoration(hintText: 'Search tools', prefixIcon: Icon(Icons.search))),
         const SizedBox(height: 12), toolGrid(found, wide)
       ]);
