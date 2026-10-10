@@ -154,7 +154,7 @@ class _HomeShellState extends State<HomeShell> {
     return ListView(padding: const EdgeInsets.all(20), children: [
       Container(padding: const EdgeInsets.all(26), decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF30275F), Color(0xFF171A32)]), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFF3A3568))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('YOUR DIGITAL WORKSPACE', style: TextStyle(color: Color(0xFFD2CCFF), fontWeight: FontWeight.w800, letterSpacing: 1.2, fontSize: 11)),
-        const SizedBox(height: 16), Text('Everything useful.\\nNothing in the way.', style: TextStyle(fontSize: wide ? 36 : 30, fontWeight: FontWeight.w800, height: 1.12)),
+        const SizedBox(height: 16), Text('Everything useful.\nNothing in the way.', style: TextStyle(fontSize: wide ? 36 : 30, fontWeight: FontWeight.w800, height: 1.12)),
         const SizedBox(height: 12), const Text('Tools, study sessions, and conversations in one calm workspace.', style: TextStyle(color: Color(0xFFC0C5DB))),
         const SizedBox(height: 20), Wrap(spacing: 10, children: [
           FilledButton.icon(onPressed: () => setState(() => selected = 1), icon: const Icon(Icons.grid_view), label: const Text('Explore tools'), style: FilledButton.styleFrom(backgroundColor: purple)),
@@ -192,7 +192,7 @@ class _ToolPageState extends State<ToolPage> {
     try {
       switch (widget.tool.title) {
         case 'Calculator':
-          final m = RegExp(r'^(-?\\d+(?:\\.\\d+)?)\\s*([+\\-*/])\\s*(-?\\d+(?:\\.\\d+)?)$').firstMatch(text);
+          final m = RegExp(r'^(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)$').firstMatch(text);
           if (m == null) { setState(() => output = 'Enter a simple expression, such as 12 * 4.'); return; }
           final a = double.parse(m.group(1)!), b = double.parse(m.group(3)!); final op = m.group(2)!;
           if (op == '/' && b == 0) { setState(() => output = 'Cannot divide by zero.'); return; }
@@ -200,7 +200,7 @@ class _ToolPageState extends State<ToolPage> {
           setState(() => output = result.toString()); break;
         case 'Unit Converter':
           final n = double.parse(text);
-          setState(() => output = 'Inches to cm: ' + (n * 2.54).toStringAsFixed(3) + '\\nPounds to kg: ' + (n * 0.45359237).toStringAsFixed(3) + '\\nFahrenheit to Celsius: ' + ((n - 32) * 5 / 9).toStringAsFixed(2)); break;
+          setState(() => output = 'Inches to cm: ' + (n * 2.54).toStringAsFixed(3) + '\nPounds to kg: ' + (n * 0.45359237).toStringAsFixed(3) + '\nFahrenheit to Celsius: ' + ((n - 32) * 5 / 9).toStringAsFixed(2)); break;
         case 'JSON Formatter':
           setState(() => output = const JsonEncoder.withIndent('  ').convert(jsonDecode(text))); break;
         case 'Password Generator':
@@ -213,7 +213,7 @@ class _ToolPageState extends State<ToolPage> {
           final value = text.replaceFirst('#', '');
           if (value.length != 6 || int.tryParse(value, radix: 16) == null) { setState(() => output = 'Enter a six-digit hex value, like #8B7CFF.'); return; }
           hex = '#' + value.toUpperCase();
-          setState(() => output = hex + '\\nRGB: ' + int.parse(value.substring(0, 2), radix: 16).toString() + ', ' + int.parse(value.substring(2, 4), radix: 16).toString() + ', ' + int.parse(value.substring(4, 6), radix: 16).toString()); break;
+          setState(() => output = hex + '\nRGB: ' + int.parse(value.substring(0, 2), radix: 16).toString() + ', ' + int.parse(value.substring(2, 4), radix: 16).toString() + ', ' + int.parse(value.substring(4, 6), radix: 16).toString()); break;
       }
     } catch (_) { setState(() => output = widget.tool.title == 'JSON Formatter' ? 'Invalid JSON. Check commas, quotes, and brackets.' : 'Please check the input and try again.'); }
   }
@@ -224,8 +224,8 @@ class _ToolPageState extends State<ToolPage> {
       const SizedBox(height: 12), Wrap(spacing: 8, runSpacing: 8, children: [
         OutlinedButton(onPressed: () => setState(() => output = input.text.toUpperCase()), child: const Text('UPPERCASE')),
         OutlinedButton(onPressed: () => setState(() => output = input.text.toLowerCase()), child: const Text('lowercase')),
-        OutlinedButton(onPressed: () => setState(() => output = input.text.trim().replaceAll(RegExp(r'[ \\t]+'), ' ').replaceAll(RegExp(r'\\n{3,}'), '\\n\\n')), child: const Text('Clean spaces')),
-        OutlinedButton(onPressed: () => setState(() => output = input.text.split(RegExp(r'\\s+')).map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1).toLowerCase()).join(' ')), child: const Text('Title Case'))
+        OutlinedButton(onPressed: () => setState(() => output = input.text.trim().replaceAll(RegExp(r'[ \t]+'), ' ').replaceAll(RegExp(r'\n{3,}'), '\n\n')), child: const Text('Clean spaces')),
+        OutlinedButton(onPressed: () => setState(() => output = input.text.split(RegExp(r'\s+')).map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1).toLowerCase()).join(' ')), child: const Text('Title Case'))
       ])
     ] else ...[
       TextField(controller: input, minLines: widget.tool.title == 'JSON Formatter' ? 5 : 1, maxLines: widget.tool.title == 'JSON Formatter' ? 12 : 3,
@@ -259,10 +259,10 @@ class _StudyPageState extends State<StudyPage> {
   void makePractice() {
     final source = notes.text.trim();
     if (source.isEmpty) { notify('Paste some notes first.'); return; }
-    final lines = source.split(RegExp(r'(?<=[.!?])\\s+')).where((s) => s.trim().length > 12).take(5).toList();
+    final lines = source.split(RegExp(r'(?<=[.!?])\s+')).where((s) => s.trim().length > 12).take(5).toList();
     setState(() => practice = lines.isEmpty
-      ? 'Practice prompts\\n1. What are the key ideas?\\n2. Explain this topic in your own words.\\n3. Give an example.'
-      : lines.asMap().entries.map((e) => 'Q' + (e.key + 1).toString() + '. Explain this idea in your own words:\\n' + e.value.trim()).join('\\n\\n'));
+      ? 'Practice prompts\n1. What are the key ideas?\n2. Explain this topic in your own words.\n3. Give an example.'
+      : lines.asMap().entries.map((e) => 'Q' + (e.key + 1).toString() + '. Explain this idea in your own words:\n' + e.value.trim()).join('\n\n'));
   }
   Future<void> save() async {
     if (title.text.trim().isEmpty) { notify('Add a note title first.'); return; }
