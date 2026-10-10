@@ -228,6 +228,30 @@ class _ToolPageState extends State<ToolPage> {
           if (value.length != 6 || int.tryParse(value, radix: 16) == null) { setState(() => output = 'Enter a six-digit hex value, like #8B7CFF.'); return; }
           hex = '#' + value.toUpperCase();
           setState(() => output = hex + '\nRGB: ' + int.parse(value.substring(0, 2), radix: 16).toString() + ', ' + int.parse(value.substring(2, 4), radix: 16).toString() + ', ' + int.parse(value.substring(4, 6), radix: 16).toString()); break;
+        case 'Word Counter':
+          final words = text.isEmpty ? <String>[] : text.split(RegExp(r'\s+'));
+          setState(() => output = 'Words: ' + words.length.toString() + '\nCharacters: ' + input.text.length.toString() + '\nCharacters without spaces: ' + input.text.replaceAll(RegExp(r'\s'), '').length.toString() + '\nLines: ' + (input.text.isEmpty ? 0 : input.text.split('\n').length).toString()); break;
+        case 'URL Encoder':
+          if (text.startsWith('ENCODE:')) { setState(() => output = Uri.encodeComponent(text.substring(7).trim())); }
+          else if (text.startsWith('DECODE:')) { setState(() => output = Uri.decodeComponent(text.substring(7).trim())); }
+          else { setState(() => output = 'Prefix input with ENCODE: or DECODE:. Example: ENCODE: hello world'); } break;
+        case 'Base64 Tools':
+          if (text.startsWith('ENCODE:')) { setState(() => output = base64Encode(utf8.encode(text.substring(7).trim()))); }
+          else if (text.startsWith('DECODE:')) { setState(() => output = utf8.decode(base64.decode(text.substring(7).trim()))); }
+          else { setState(() => output = 'Prefix input with ENCODE: or DECODE:. Example: ENCODE: hello world'); } break;
+        case 'Line Sorter':
+          final lines = input.text.split('\n')..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+          setState(() => output = lines.join('\n')); break;
+        case 'Duplicate Remover':
+          final seen = <String>{};
+          final unique = input.text.split('\n').where((line) => seen.add(line.trim().toLowerCase())).toList();
+          setState(() => output = unique.join('\n')); break;
+        case 'Lorem Ipsum':
+          final count = int.tryParse(text) ?? 50;
+          if (count < 1 || count > 500) { setState(() => output = 'Choose a word count from 1 to 500.'); return; }
+          const sample = 'Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua';
+          final words = sample.split(' ');
+          setState(() => output = List.generate(count, (i) => words[i % words.length]).join(' ')); break;
       }
     } catch (_) { setState(() => output = widget.tool.title == 'JSON Formatter' ? 'Invalid JSON. Check commas, quotes, and brackets.' : 'Please check the input and try again.'); }
   }
@@ -242,8 +266,8 @@ class _ToolPageState extends State<ToolPage> {
         OutlinedButton(onPressed: () => setState(() => output = input.text.split(RegExp(r'\s+')).map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1).toLowerCase()).join(' ')), child: const Text('Title Case'))
       ])
     ] else ...[
-      TextField(controller: input, minLines: widget.tool.title == 'JSON Formatter' ? 5 : 1, maxLines: widget.tool.title == 'JSON Formatter' ? 12 : 3,
-        decoration: InputDecoration(labelText: switch (widget.tool.title) { 'Calculator' => 'Expression, e.g. 12 * 4', 'Unit Converter' => 'Number to convert', 'JSON Formatter' => 'JSON input', 'Password Generator' => 'Length (8–64), default 20', 'Color Tools' => 'Hex color, e.g. #8B7CFF', _ => 'Input' }, alignLabelWithHint: true)),
+      TextField(controller: input, minLines: const ['JSON Formatter', 'Word Counter', 'Line Sorter', 'Duplicate Remover'].contains(widget.tool.title) ? 5 : 1, maxLines: const ['JSON Formatter', 'Word Counter', 'Line Sorter', 'Duplicate Remover'].contains(widget.tool.title) ? 12 : 3,
+        decoration: InputDecoration(labelText: switch (widget.tool.title) { 'Calculator' => 'Expression, e.g. 12 * 4', 'Unit Converter' => 'Number to convert', 'JSON Formatter' => 'JSON input', 'Password Generator' => 'Length (8–64), default 20', 'Color Tools' => 'Hex color, e.g. #8B7CFF', 'Word Counter' => 'Paste text to count', 'URL Encoder' => 'ENCODE: text or DECODE: encoded%20text', 'Base64 Tools' => 'ENCODE: text or DECODE: SGVsbG8=', 'Line Sorter' => 'One item per line', 'Duplicate Remover' => 'One item per line', 'Lorem Ipsum' => 'Word count (1–500), default 50', _ => 'Input' }, alignLabelWithHint: true)),
       const SizedBox(height: 12), FilledButton.icon(onPressed: runTool, icon: const Icon(Icons.play_arrow), label: const Text('Run tool'), style: FilledButton.styleFrom(backgroundColor: purple))
     ],
     if (output.isNotEmpty) ...[
